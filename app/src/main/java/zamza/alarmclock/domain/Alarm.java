@@ -17,16 +17,12 @@ public class Alarm {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    @ColumnInfo(name = "hour")
     private Integer hour;
 
-    @ColumnInfo(name = "minute")
     private Integer minute;
 
-    @ColumnInfo(name = "songpath")
     private String songpath;
 
-    @ColumnInfo(name = "active")
     private Boolean active;
 
     public Boolean getActive() {
@@ -41,9 +37,7 @@ public class Alarm {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public void setId(int id) { this.id = id; }
 
     public Integer getHour() {
         return hour;
@@ -71,7 +65,7 @@ public class Alarm {
 
     @Override
     public String toString(){
-        return hour.toString()+":"+minute.toString();
+        return String.format("%02d:%02d", hour, minute);
     }
 
 }
