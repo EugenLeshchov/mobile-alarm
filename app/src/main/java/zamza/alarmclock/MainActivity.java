@@ -17,6 +17,7 @@ import java.util.List;
 import zamza.alarmclock.dao.AlarmDao;
 import zamza.alarmclock.domain.Alarm;
 import zamza.alarmclock.service.AlarmService;
+import zamza.alarmclock.service.RingtoneService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +31,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null && extras.containsKey(RingtoneService.NOTIFICATION)){
+            Intent service_intent = new Intent(this, RingtoneService.class);
+            service_intent.putExtra(RingtoneService.STOP, true);
+            startService(service_intent);
+            finish();
+            System.exit(0);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

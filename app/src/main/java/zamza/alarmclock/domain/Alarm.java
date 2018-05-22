@@ -7,7 +7,7 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity
 public class Alarm {
 
-    public Alarm(int hour, int minute, String songpath, Boolean active){
+    public Alarm(int hour, int minute, int songpath, Boolean active){
         this.hour = hour;
         this.minute = minute;
         this.songpath = songpath;
@@ -21,7 +21,7 @@ public class Alarm {
 
     private Integer minute;
 
-    private String songpath;
+    private Integer songpath;
 
     private Boolean active;
 
@@ -55,11 +55,11 @@ public class Alarm {
         this.minute = minute;
     }
 
-    public String getSongpath() {
+    public Integer getSongpath() {
         return songpath;
     }
 
-    public void setSongpath(String songpath) {
+    public void setSongpath(int songpath) {
         this.songpath = songpath;
     }
 

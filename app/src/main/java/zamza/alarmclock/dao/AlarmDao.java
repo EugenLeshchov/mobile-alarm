@@ -21,7 +21,7 @@ public interface AlarmDao {
     Alarm getById(int id);
 
     @Insert
-    void insert(Alarm alarm);
+    long insert(Alarm alarm);
 
     @Update
     void update(Alarm alarm);

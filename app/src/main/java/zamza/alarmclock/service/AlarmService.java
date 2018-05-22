@@ -9,8 +9,11 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.Update;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import zamza.alarmclock.AppDatabase;
 import zamza.alarmclock.MainActivity;
@@ -25,13 +28,15 @@ public class AlarmService {
     private AlarmManager alarmManager;
     private Intent alarmIntent;
     private PendingIntent pendingIntent;
+    private Context context;
+    private Calendar calendar;
 
     private AlarmService(Context context){
+        this.context = context;
         alarmDao = Room.databaseBuilder(context, AppDatabase.class, "alarmdb").allowMainThreadQueries().build().alarmDao();
         alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmIntent = new Intent(context, AlarmReceiver.class);
-
-        pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        calendar = Calendar.getInstance();
     }
 
     public static AlarmService getInstance(Context context){
@@ -50,16 +55,42 @@ public class AlarmService {
     }
 
 
-    public void insert(Alarm alarm){
-        alarmDao.insert(alarm);
+    public void insert(Alarm alarm)
+    {
+        alarm.setId((int)alarmDao.insert(alarm));
+        if (alarm.getActive()){
+            alarmIntent.putExtra(RingtoneService.SONG_ID, alarm.getSongpath());
+            pendingIntent = PendingIntent.getBroadcast(context, alarm.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            SetCalendarTime(alarm);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
     }
 
-    public void update(Alarm alarm){
+    public void update(Alarm alarm)
+    {
+        pendingIntent = PendingIntent.getBroadcast(context, alarm.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
         alarmDao.update(alarm);
+        if (alarm.getActive()){
+            alarmIntent.putExtra(RingtoneService.SONG_ID, alarm.getSongpath());
+            pendingIntent = PendingIntent.getBroadcast(context, alarm.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            SetCalendarTime(alarm);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
     }
 
-    public void delete(Alarm alarm){
+    public void delete(Alarm alarm)
+    {
         alarmDao.delete(alarm);
+        pendingIntent = PendingIntent.getBroadcast(context, alarm.getId(), alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+    }
+
+    private void SetCalendarTime(Alarm alarm){
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, alarm.getHour());
+        calendar.set(Calendar.MINUTE, alarm.getMinute());
+        calendar.set(Calendar.SECOND, 0);
     }
 
 }
